@@ -8,8 +8,8 @@ A filterable card catalog built with [Gorlab](https://github.com/girtablu/gorlab
 
 1. Click **Use this template** → create your repo
 2. **In your new repo**, go to **Settings → Pages**, set Source to **GitHub Actions**
-3. Edit `gorlab.config.js` — set your `title` — save → site deploys automatically
-4. Add posts to `posts/` — save → site updates automatically
+3. Edit `gorlab.config.js` — set your `title` — commit → site deploys automatically
+4. Add posts to `posts/` — commit → site updates automatically
 
 ### For local development (optional):
 
@@ -47,6 +47,7 @@ subtexts:
   - "First bullet point on the entry page."
   - "Second bullet point."
 featured: true                # featured posts get a highlighted card accent
+imageOrientation: portrait    # landscape | portrait | none — overrides global config
 ---
 
 Optional markdown body rendered on the resource page. Delete this if unused.
@@ -61,7 +62,7 @@ External `cover-image` URLs are downloaded automatically to `static/covers/` by 
 To add a cover image locally, place the file in `static/covers/` and set:
 
 ```yaml
-cover-image: /covers/filename.(jpg|gif|webp)
+cover-image: /covers/filename.(jpg|gif|png|webp)
 ```
 
 ## Posts structure
@@ -87,11 +88,24 @@ export default {
   title: "My Catalog",
   // description: "",
   // siteUrl: "https://username.github.io/my-catalog",
-  // theme: "vintage",   // cerberus | wintry | vintage | crimson | pine | modern
+  // theme: "vintage",        // cerberus | wintry | vintage | crimson | pine | modern
   // postsPerPage: 24,
+  // imageOrientation: 'landscape',  // landscape | portrait | none
   // showCost: false,
 }
 ```
+
+`imageOrientation` controls how cover images are displayed on cards and resource pages. Set it to match the shape of your cover images:
+
+| Value | Card image box | Resource page layout |
+|---|---|---|
+| `landscape` (default) | 3:2 (wide) | Image stacked above text |
+| `portrait` | 2:3 (tall) | Image left, text right |
+| `none` | Hidden | No image, text full width |
+
+Individual posts can override the global setting with `imageOrientation:` in their frontmatter.
+
+---
 
 ## Theming
 
@@ -150,7 +164,7 @@ Edit `package.json`, bump the version number in `"@girtablu/gorlab": "^x.y.z"`, 
 ### Local:
 
 ```bash
-npm update @girtablu/gorlab
+npm update @gulluth/gorlab
 ```
 
 Then push — GitHub Actions rebuilds with the new version.
