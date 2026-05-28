@@ -8,8 +8,8 @@ A filterable card catalog built with [Gorlab](https://github.com/girtablu/gorlab
 
 1. Click **Use this template** → create your repo
 2. **In your new repo**, go to **Settings → Pages**, set Source to **GitHub Actions**
-3. Edit `gorlab.config.js` — set your `title` — commit → site deploys automatically
-4. Add posts to `posts/` — commit → site updates automatically
+3. Edit `gorlab.config.js` → set your `title` → commit → site deploys automatically
+4. Add posts to `posts/` → commit → site updates automatically
 
 ### For local development (optional)
 
@@ -23,7 +23,7 @@ npm run dev       # preview at http://localhost:5173
 
 Each resource is a Markdown file with YAML frontmatter in `posts/`.
 
-**Filename format:** `YYYY-MM-DD-slug.md`
+**Filename format:** `slug.md` — or `YYYY-MM-DD-slug.md` if you want to control sort order by publication date.
 
 ```yaml
 ---
@@ -71,13 +71,15 @@ Posts can live directly in `posts/` or in any subdirectory:
 
 ```sh
 posts/
-  2024-01-01-my-adventure.md        ← flat
-  2024-01-02-my-system.md           ← flat
+  my-adventure.md                   ← flat, no date
+  2024-01-02-my-system.md           ← flat, with date prefix for sort order
   zines/
-    2024-01-03-my-zine.md           ← in a subdir
+    my-zine.md                      ← in a subdir
 ```
 
-Subdirectory names have no effect on categories. Categories come only from the `category:` field in each post's frontmatter. Organize subdirectories however makes sense for you — the catalog ignores the folder structure.
+Posts with a `YYYY-MM-DD-` prefix sort before undated posts (newest date first). Undated posts sort after all dated ones.
+
+Subdirectory names have no effect on categories. Categories come only from the `category:` field in each post's frontmatter. Organize subdirectories however makes sense for you, the catalog ignores the folder structure.
 
 ## Configuration
 
@@ -89,11 +91,19 @@ export default {
   // description: "",
   // siteUrl: "https://username.github.io/my-catalog",
   // theme: "vintage",        // cerberus | wintry | vintage | crimson | pine | modern
+  // cardLayout: 'masonry',   // masonry (default) | grid
   // postsPerPage: 24,
   // imageOrientation: 'landscape',  // landscape | portrait | none
   // showCost: false,
 }
 ```
+
+`cardLayout` controls how cards are arranged on the catalog page:
+
+| Value               | Behavior                                                      |
+| ------------------- | ------------------------------------------------------------- |
+| `masonry` (default) | Variable-height cards; gaps collapse. Best for mixed content. |
+| `grid`              | Uniform rows; all cards in a row share the same height.       |
 
 `imageOrientation` controls how cover images are displayed on cards and resource pages. Set it to match the shape of your cover images:
 
@@ -145,7 +155,7 @@ customCss: "/my-styles.css",
 
 1. Go to **Settings → Pages** in your GitHub repo
 2. Set **Source** to **GitHub Actions**
-3. Push to `main` — the workflow builds and deploys automatically
+3. Push to `main` → the workflow builds and deploys automatically
 
 For project sites (`username.github.io/my-catalog`), uncomment `basePath` in `gorlab.config.js`:
 
@@ -157,7 +167,7 @@ basePath: '/my-catalog',
 
 ### GitHub
 
-Edit `package.json`, bump the version number in `"@girtablu/gorlab": "^x.y.z"`, save. The CI workflow runs `npm install` which resolves the new version automatically.
+Edit `package.json`, bump the version number in `"@gulluth/gorlab": "^x.y.z"`, save. The Github Actions run `npm install` which resolves the new version automatically.
 
 ### Local
 
@@ -180,20 +190,6 @@ customFields: [
 ```
 
 Then add the corresponding keys to your post frontmatter. Fields not declared here are ignored.
-
-## Community submissions
-
-Gorlab includes a `/submit/` page where visitors can propose resources. You enable the UI with a config toggle. The backend that receives and processes those submissions is **not** included; it is a separate add-on package you install alongside gorlab.
-
-```js
-// gorlab.config.js
-showSubmitForm: true,
-submitUrl: "https://your-backend-endpoint/submit",
-```
-
-When `showSubmitForm` is `true`, a **Submit** link appears in the nav and the `/submit/` route is active. When `false` (the default), the route is inaccessible and the link is hidden.
-
-Backend add-on packages (e.g. `@girtablu/gorlab-submit-cloudflare`) will be published separately. Until then, this feature requires you to wire up your own endpoint.
 
 ## Bulk import from CSV
 
