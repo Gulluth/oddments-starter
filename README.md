@@ -19,6 +19,21 @@ npm install
 npm run dev       # preview at http://localhost:5173
 ```
 
+### Codespaces or Dev Containers
+
+This template includes a `.devcontainer/` setup for GitHub Codespaces and local Docker-based development. Open the repo in Codespaces, or use VS Code's **Dev Containers: Reopen in Container** command, then run:
+
+```bash
+npm run dev
+```
+
+CLI commands work there too:
+
+```bash
+npx oddments import template.csv --dry-run
+npx oddments covers --dry-run
+```
+
 ## Adding content
 
 Each exhibit is a Markdown file with YAML frontmatter in `oddments/`.
@@ -27,7 +42,7 @@ Each exhibit is a Markdown file with YAML frontmatter in `oddments/`.
 
 ```yaml
 ---
-name: My Exhibit Title        # required — the only mandatory field
+name: My Exhibit Title       # required — the only mandatory field
 category:                     # recommended — drives tag cloud and filters
   - systems
 author: Author Name
@@ -48,6 +63,7 @@ subtexts:
   - "Second bullet point."
 featured: true                # featured exhibits get a highlighted card accent
 imageOrientation: portrait    # landscape | portrait | none — overrides global config
+published: false              # optional — hide this exhibit without deleting it
 ---
 
 Optional markdown body rendered on the exhibit page. Delete this if unused.
@@ -55,9 +71,46 @@ Optional markdown body rendered on the exhibit page. Delete this if unused.
 
 Only `name` is required. Every other field degrades gracefully when absent.
 
+Exhibits are published by default. Add `published: false` to keep a file in
+your repo while excluding it from the catalog, search, filters, exhibit pages,
+and RSS feed.
+
+## Page sections
+
+Add optional Markdown files in the root of your repository:
+
+```sh
+hero.md   # appears above the catalog
+body.md   # appears below the catalog
+```
+
+Both files support frontmatter:
+
+```md
+---
+published: false
+---
+
+# Hidden for now
+```
+
+Missing `published` means the section is published.
+
 ### Cover images
 
-External `cover-image` URLs are downloaded automatically to `static/covers/` by `Github Actions` when you open a pull request.
+You can leave `cover-image` as an external URL, or download external cover images into `static/covers/` when you want local copies:
+
+```bash
+npx oddments covers
+```
+
+This rewrites matching exhibit frontmatter from external URLs to local `/covers/...` paths. Existing local cover files are reused, not overwritten.
+
+Preview the changes first with:
+
+```bash
+npx oddments covers --dry-run
+```
 
 To add a cover image locally, place the file in `static/covers/` and set:
 
@@ -89,12 +142,19 @@ Edit `oddments.config.js`. Every option is documented inline. Common settings:
 export default {
   title: "My Catalog",
   // description: "",
+  // icon: "/icon.svg",      // small custom SVG or PNG shown before the title
+  // logo: "/logo.svg",      // custom SVG or PNG that replaces icon + title
   // siteUrl: "https://username.github.io/my-catalog",
   // theme: "vintage",        // cerberus | wintry | vintage | crimson | pine | modern
   // cardLayout: 'masonry',   // masonry (default) | grid
   // exhibitsPerPage: 24,
   // imageOrientation: 'landscape',  // landscape | portrait | none
   // showCost: false,
+  // copyright: "(c) 2026 My Catalog",
+  // copyrightUrl: "https://example.com/license",
+  // instagram: "https://instagram.com/example",
+  // itch: "https://example.itch.io",
+  // github: "https://github.com/example",
 }
 ```
 
@@ -107,7 +167,7 @@ export default {
 
 `imageOrientation` controls how cover images are displayed on cards and exhibit pages. Set it to match the shape of your cover images:
 
-| Value                 | Card image box | Exhibit page layout      |
+| Value                 | Card image box | Exhibit page layout       |
 | --------------------- | -------------- | ------------------------- |
 | `landscape` (default) | 3:2 (wide)     | Image stacked above text  |
 | `portrait`            | 2:3 (tall)     | Image left, text right    |
@@ -193,4 +253,22 @@ Then add the corresponding keys to your exhibit frontmatter. Fields not declared
 
 ## Bulk import from CSV
 
-If you have existing data in a spreadsheet, the included `csv_to_oddments.py` script (in the oddments repo) can generate markdown files. See the script header for column format details.
+If you have existing data in a spreadsheet, export it as CSV and run:
+
+```bash
+npx oddments import path/to/data.csv
+```
+
+The starter includes `template.csv` with the standard column headings. Duplicate it, add your rows, then import the copy.
+
+The first row must be column headings. Headings are normalized to frontmatter keys, matching the legacy importer: spaces become hyphens, `%` becomes `percent`, and `$` is removed. The first column is used to build the exhibit slug and filename.
+
+Imported files are written flat into `oddments/` as `YYYY-MM-DD-slug.md` using today's date. Existing exhibits are never overwritten; if any markdown file under `oddments/` already has the same slug, that CSV row is skipped.
+
+Use `--dry-run` to preview the files that would be created:
+
+```bash
+npx oddments import path/to/data.csv --dry-run
+```
+
+Comma-separated values in `category`, `tags`, `subtexts`, and any `customFields` marked `multiple: true` are written as frontmatter arrays.
